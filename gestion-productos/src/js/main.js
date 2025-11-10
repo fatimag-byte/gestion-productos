@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   formGestion.addEventListener("submit", (e) => {
     e.preventDefault();
-    obtenerDatos();
+    enviarDatos() ;
 
     const campos = [nombre, descripcion, precio, stock, categoria];
     let vacio = false;
@@ -180,26 +180,72 @@ async function obtenerDatostest() {
 }
 
 
+fetch('http://localhost:3000/api/productos')
+  .then(respuesta => respuesta.json())
+  .then(data=> {
+    const listaProductos = document.getElementById('listaProductos');
 
-async function obtenerDatos() {
+    
+    data.forEach(producto => {
+        const row = document.createElement('tr');
+        const cellName = document.createElement('td');
+        cellName.textContent = producto.nombre;
+        row.appendChild(cellName);
+
+        const cellDesc = document.createElement('td');
+        cellDesc.textContent = producto.descripcion;
+        row.appendChild(cellDesc);
+        
+        const cellPrecio = document.createElement('td');
+        cellPrecio.textContent = `$${producto.precio}`;
+         row.appendChild(cellPrecio);
+
+        const cellStock = document.createElement('td');
+        cellStock.textContent = producto.stock;
+         row.appendChild(cellStock);
+
+         const cellCat = document.createElement('td');
+        cellCat.textContent = producto.categoria;
+         row.appendChild(cellCat);
+
+         const cellId = document.createElement('td');
+        cellId.textContent = producto._id;
+         row.appendChild(cellId);
+
+         listaProductos.appendChild(row);
+    })
+  })
+
+  async function enviarDatos() {
+  const producto = { nombre: nombre.value , descripcion: descripcion.value, precio: precio.value, 
+    stock: stock.value,
+    categoria: categoria.value};
+   
+  
   try {
-  fetch('http://localhost:3000/api/productos')
-  .then(respuesta => {
+    const respuesta = await fetch('http://localhost:3000/api/productos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(producto) // Convierte el objeto a cadena JSON
+      
+    });
+    
     if (!respuesta.ok) {
       throw new Error(`Error HTTP: ${respuesta.status}`);
     }
-  })
-  .then(datos => {
-        const datoss = respuesta.json(); // Convierte la respuesta en JSON
-    console.log(datoss);
-  })
-  .catch(error => {
-    console.error('Hubo un problema con la petición:', error);
-  });
-  } 
-  catch (error) {
-    console.error('Hubo un problema con la petición:', error);
+    
+    const resultado = await respuesta.json();
+    console.log('Datos enviados correctamente:', resultado);
+  } catch (error) {
+    console.error('Error al enviar datos:', error);
   }
 }
+
+   
+  
+
+  
 
 
