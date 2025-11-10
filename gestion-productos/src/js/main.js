@@ -201,21 +201,35 @@ document.addEventListener("DOMContentLoaded", () => {
     renderProductos(filtrados);
   }
 
-  // obtener datos de la bd
-  fetch("https://productos-api-0sof.onrender.com/api/productos/")
-    .then((respuesta) => respuesta.json())
-    .then((data) => {
-      productos = [...productos, ...data];
-      data.forEach((p) => {
-        if (contadores[p.categoria] !== undefined) contadores[p.categoria]++;
+// obtener datos de la bd u
+function obtenerDatos() {
+  return new Promise((resolve, reject) => {
+    fetch("https://productos-api-0sof.onrender.com/api/productos/")
+      .then((respuesta) => {
+        if (!respuesta.ok) {
+          reject(`Error HTTP: ${respuesta.status}`);
+        } else {
+          return respuesta.json();
+        }
+      })
+      .then((data) => {
+        productos = [...productos, ...data];
+        data.forEach((p) => {
+          if (contadores[p.categoria] !== undefined) contadores[p.categoria]++;
+        });
+        actualizarCategorias();
+        renderProductos();
+        resolve(data);
+      })
+      .catch((err) => {
+        console.error("error al traer productos:", err);
+        reject(err);
       });
-      actualizarCategorias();
-      renderProductos();
-    })
-    .catch((err) => console.error("error al traer productos:", err));
-});
+  });
+}
 
-async function enviarDatos() {
+// enviar datos a la bd 
+function enviarDatos() {
   const producto = {
     nombre: nombre.value,
     descripcion: descripcion.value,
@@ -224,22 +238,29 @@ async function enviarDatos() {
     categoria: categoria.value,
   };
 
-  try {
-    const respuesta = await fetch("https://productos-api-0sof.onrender.com/api/productos", {
+  return new Promise((resolve, reject) => {
+    fetch("https://productos-api-0sof.onrender.com/api/productos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(producto),
-    });
+    })
+      .then((respuesta) => {
+        if (!respuesta.ok) {
+          reject(`Error HTTP: ${respuesta.status}`);
+        } else {
+          return respuesta.json();
+        }
+      })
+      .then((resultado) => {
+        console.log("Datos enviados correctamente:", resultado);
+        resolve(resultado);
+      })
+      .catch((error) => {
+        console.error("Error al enviar datos:", error);
+        reject(error);
+      });
+  });
+}});
 
-    if (!respuesta.ok) {
-      throw new Error(`Error HTTP: ${respuesta.status}`);
-    }
-
-    const resultado = await respuesta.json();
-    console.log("Datos enviados correctamente:", resultado);
-  } catch (error) {
-    console.error("Error al enviar datos:", error);
-  }
-}
