@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let productoEditando = null;
   let productos = []; // array para guardar los productos
+  
 
   // contador de categorias
   const categoriaCards = {
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (p._id) {
           // si viene de la bd
           try {
-            const res = await fetch(`http://localhost:3000/api/productos/${p._id}`, {
+            const res = await fetch(`https://productos-api-0sof.onrender.com/api/productos/${p._id}`, {
               method: "DELETE",
             });
             if (res.ok) {
@@ -173,26 +174,27 @@ document.addEventListener("DOMContentLoaded", () => {
     productoEditando = p;
   }
 
-  //filtro nombre
+  // filtro nombre
   buscarProducto.addEventListener("input", () => {
     aplicarFiltros();
   });
 
-  //filtro categoria
+  // filtro categoria
   filtroCategoria.addEventListener("change", () => {
     aplicarFiltros();
   });
 
-  //ambos filtros
+  // ambos filtros
   function aplicarFiltros() {
     const texto = buscarProducto.value.toLowerCase();
     const categoriaSel = filtroCategoria.value;
 
+    // filtrar nombre
     let filtrados = productos.filter((p) =>
       p.nombre.toLowerCase().includes(texto)
     );
 
-    if (categoriaSel && categoriaSel !== "Seleccionar...") {
+    if (categoriaSel && categoriaSel !== "Todo" && categoriaSel !== "Seleccionar...") {
       filtrados = filtrados.filter((p) => p.categoria === categoriaSel);
     }
 
@@ -200,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // obtener datos de la bd
-  fetch("http://localhost:3000/api/productos")
+  fetch("https://productos-api-0sof.onrender.com/api/productos/")
     .then((respuesta) => respuesta.json())
     .then((data) => {
       productos = [...productos, ...data];
@@ -223,7 +225,7 @@ async function enviarDatos() {
   };
 
   try {
-    const respuesta = await fetch("http://localhost:3000/api/productos", {
+    const respuesta = await fetch("https://productos-api-0sof.onrender.com/api/productos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
